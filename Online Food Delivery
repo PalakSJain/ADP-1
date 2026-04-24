@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodExpress</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f8f8f8;
+}
+
+header {
+  background: #ff4d4d;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  background: #333;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+nav a:hover {
+  background: #ff4d4d;
+}
+
+section {
+  padding: 20px;
+  display: none;
+}
+
+.active {
+  display: block;
+}
+
+.hero {
+  text-align: center;
+  padding: 50px;
+  background: url('https://images.unsplash.com/photo-1600891964599-f61ba0e24092') center/cover;
+  color: white;
+}
+
+/* MENU */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 10px;
+}
+
+.card-content h3 {
+  margin: 5px 0;
+}
+
+.card-content p {
+  font-weight: bold;
+  color: #ff4d4d;
+}
+
+/* BUTTON */
+button {
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:hover {
+  background: #e60000;
+}
+
+/* CART */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+/* FORM */
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+/* MAP */
+iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🍔 FoodExpress</h1>
+</header>
+
+<nav>
+  <a onclick="showPage('home')">Home</a>
+  <a onclick="showPage('menu')">Menu</a>
+  <a onclick="showPage('info')">Restaurant Info</a>
+  <a onclick="showPage('order')">Order</a>
+  <a onclick="showPage('cart')">Cart</a>
+  <a onclick="showPage('checkout')">Checkout</a>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="active">
+  <div class="hero">
+    <h2>Delicious Food Delivered Fast 🚀</h2>
+    <p>Order your favorite meals anytime</p>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <h2>Menu</h2>
+  <div class="menu-grid" id="menuItems"></div>
+</section>
+
+<!-- RESTAURANT INFO -->
+<section id="info">
+  <h2>Restaurant Info</h2>
+  <p>📍 Mumbai, India</p>
+  <p>⏱ Delivery Time: 30-45 minutes</p>
+
+  <iframe src="https://maps.google.com/maps?q=mumbai&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
+</section>
+
+<!-- ORDER FORM -->
+<section id="order">
+  <h2>Order Form</h2>
+  <input type="text" placeholder="Your Name">
+  <input type="text" placeholder="Address">
+  <input type="tel" placeholder="Phone Number">
+</section>
+
+<!-- CART -->
+<section id="cart">
+  <h2>Your Cart</h2>
+  <div id="cartItems"></div>
+  <h3 id="total"></h3>
+</section>
+
+<!-- CHECKOUT -->
+<section id="checkout">
+  <h2>Checkout</h2>
+
+  <label>Payment Method</label>
+  <select>
+    <option>Cash on Delivery</option>
+    <option>Credit Card</option>
+    <option>UPI</option>
+  </select>
+
+  <p>Estimated Delivery: 30-45 mins</p>
+  <button onclick="placeOrder()">Place Order</button>
+</section>
+
+<script>
+const menu = [
+  { name: "Cheese Burger", price: 149, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd" },
+  { name: "Pepperoni Pizza", price: 299, img: "https://images.unsplash.com/photo-1601924582975-7e5c1e9c48b4" },
+  { name: "White Sauce Pasta", price: 199, img: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9" },
+  { name: "French Fries", price: 99, img: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877" },
+  { name: "Grilled Sandwich", price: 129, img: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af" },
+  { name: "Cold Coffee", price: 89, img: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735" }
+];
+
+let cart = [];
+
+function showPage(page) {
+  document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
+}
+
+function loadMenu() {
+  const menuContainer = document.getElementById("menuItems");
+  menuContainer.innerHTML = "";
+
+  menu.forEach((item, index) => {
+    menuContainer.innerHTML += `
+      <div class="card">
+        <img src="${item.img}" alt="${item.name}">
+        <div class="card-content">
+          <h3>${item.name}</h3>
+          <p>₹${item.price}</p>
+          <button onclick="addToCart(${index})">Add to Cart</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function addToCart(index) {
+  cart.push(menu[index]);
+  alert("Added to cart!");
+}
+
+function loadCart() {
+  const cartContainer = document.getElementById("cartItems");
+  cartContainer.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(item => {
+    total += item.price;
+    cartContainer.innerHTML += `
+      <div class="cart-item">
+        <span>${item.name}</span>
+        <span>₹${item.price}</span>
+      </div>
+    `;
+  });
+
+  document.getElementById("total").innerText = "Total: ₹" + total;
+}
+
+function placeOrder() {
+  alert("🎉 Order placed successfully!");
+  cart = [];
+  loadCart();
+}
+
+loadMenu();
+setInterval(loadCart, 1000);
+</script>
+
+</body>
+</html>
